@@ -1,4 +1,4 @@
-# analisis-lenguaje-parlamentario-argentina
+# Análisis de lenguaje político en proyectos de ley argentinos (2008–2025)
 Análisis de vocabulario político en proyectos de ley argentinos (2008-2025) usando TF-IDF en R
 
 
@@ -87,7 +87,6 @@ Este proyecto fue desarrollado como ejercicio de aplicación a partir del
 taller *Primeros pasos en análisis de datos para ciencias sociales con R*, 
 parte de la Diplomatura en Ciencias Sociales Computacionales (UFLO/UCA).
 
-## Autor
 
 ## Autor
 
