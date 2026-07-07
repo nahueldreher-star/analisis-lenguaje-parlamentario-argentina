@@ -22,8 +22,7 @@ familia_map <- function(bloque, anio) {
     bloque == "FRENTE RENOVADOR" & anio <= 2019 ~ "Peronismo no-K",
     bloque == "FRENTE RENOVADOR" & anio >= 2020 ~ "Kirchnerismo/Peronismo popular",
     bloque %in% c(
-      "PRO", "UNION PRO", "FEDERAL UNIDOS POR UNA NUEVA ARGENTINA",
-      "UNIDOS POR UNA NUEVA ARGENTINA"
+      "PRO", "UNION PRO"
     ) ~ "PRO/Cambiemos",
     bloque %in% c(
       "UCR", "UCR - UNIÓN CÍVICA RADICAL", "EVOLUCION RADICAL"
@@ -48,6 +47,7 @@ familia_map <- function(bloque, anio) {
       "PRODUCCION Y TRABAJO"
     ) ~ "Peronismo no-K",
     bloque %in% c(
+      "PARTIDO SOCIALISTA", "SOCIALISTA",
       "GEN", "LIBRES DEL SUR", "NUEVO ENCUENTRO POPULAR Y SOLIDARIO",
       "MOVIMIENTO PROYECTO SUR", "PROYECTO SUR - UNEN",
       "BUENOS AIRES PARA TODOS EN PROYECTO SUR",
@@ -57,7 +57,6 @@ familia_map <- function(bloque, anio) {
       "ENCUENTRO POPULAR Y SOCIAL", "MEMORIA Y DEMOCRACIA"
     ) ~ "Centroizquierda/Progresismo",
     bloque %in% c(
-      "PARTIDO SOCIALISTA", "SOCIALISTA",
       "FRENTE DE IZQUIERDA Y DE LOS TRABAJADORES",
       "FRENTE DE IZQUIERDA Y DE TRABAJADORES - UNIDAD",
       "PTS - FRENTE DE IZQUIERDA",
@@ -65,7 +64,7 @@ familia_map <- function(bloque, anio) {
       "PARTIDO OBRERO – FRENTE DE IZQUIERDA Y DE TRABAJADORES - UNI",
       "PARTIDO OBRERO FRENTE DE IZQUIERDA Y DE TRABAJADORES UNIDAD",
       "IZQUIERDA SOCIALISTA - FRENTE DE IZQUIERDA",
-      "SOCIALISTA DEL MIJD", "IZQUIERDA SOCIALISTA FIT UNIDAD",
+      "IZQUIERDA SOCIALISTA FIT UNIDAD",
       "PARTIDO INTRANSIGENTE"
     ) ~ "Izquierda",
     bloque %in% c("LA LIBERTAD AVANZA", "AVANZA LIBERTAD") ~ "La Libertad Avanza",
@@ -82,7 +81,18 @@ df3 <- read_csv("proyectos_con_bloque.csv") %>%
     anio = year(as.POSIXct(PUBLICACION_FECHA)),
     familia_politica = familia_map(bloque, anio)
   ) %>%
-  filter(TIPO == "LEY", anio >= 2008, anio <= 2025)
+  filter(TIPO == "LEY", anio >= 2008, anio <= 2025) %>%
+  # Correcciones post-matching documentadas en el paper (sección 4.3.2):
+  # FUNA: peronistas que apoyaron Cambiemos sin pertenecer orgánicamente al PRO
+  mutate(
+    familia_politica = case_when(
+      bloque %in% c(
+        "FEDERAL UNIDOS POR UNA NUEVA ARGENTINA",
+        "UNIDOS POR UNA NUEVA ARGENTINA"
+      ) ~ "Peronismo no-K",
+      TRUE ~ familia_politica
+    )
+  )
 
 cat("Distribución por familia política:\n")
 df3 %>% count(familia_politica, sort = TRUE) %>% print()
@@ -147,6 +157,21 @@ stopwords_extra_final6 <- c(
   "pueblos", "casas", "hijos", "suprema", "escolar",
   "instalacion", "perspectiva", "presuncion"
 )
+# Nuevas stopwords identificadas durante el análisis (sesiones junio-julio 2026)
+stopwords_analisis <- c(
+  # Fórmulas procedimentales del género legislativo
+  "texto", "ordenado", "aprobacion", "ratificacion", "terminos",
+  "implementese", "expediente", "reproduccion",
+  # Topónimos y nombres propios (artefactos geográficos)
+  "chaco", "formosa", "manuel", "rosario", "buenos", "aires",
+  "avenida", "calle",
+  # Términos genéricos sin valor discriminante (IDF bajo en todas las familias)
+  "cada", "personas", "ciudad", "media", "legisladores",
+  # Términos legales transversales (aparecen en 6 de 7 familias)
+  "penal", "civil", "vacunas"
+)
+stopwords_extra_final6 <- c(stopwords_extra_final6, stopwords_analisis)
+
 
 # =============================================================================
 # 4. TOKENIZACIÓN Y CONTEO
