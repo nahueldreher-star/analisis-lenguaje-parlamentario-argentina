@@ -83,7 +83,7 @@ del PRO incluso en los años de coalición compartida.
 
 ## Resultado principal
 
-![TF-IDF por familia política](tfidf_DEFINITIVO.png)
+![TF-IDF por familia política](tfidf_familias_final.png)
 
 ## Herramientas
 
